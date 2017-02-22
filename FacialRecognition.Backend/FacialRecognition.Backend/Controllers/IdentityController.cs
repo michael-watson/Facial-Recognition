@@ -5,24 +5,19 @@ using Microsoft.ProjectOxford.Face.Contract;
 using System.IO;
 using Microsoft.ProjectOxford.Face;
 using System.Linq;
-using System;
-using System.Web;
-using System.Net.Http;
-using System.Diagnostics;
+
 using FacialRecognition.Backend.DataObjects;
 using FacialRecognition.Backend.Models;
 
 namespace FacialRecognition.Backend.Controllers
 {
-    // Use the MobileAppController attribute for each ApiController you want to use  
-    // from your mobile clients 
     [MobileAppController]
-    [RoutePrefix("api/values/v1.0")]
-    public class ValuesController : ApiController
+    [RoutePrefix("api/identify/v1.0")]
+    public class IdentifyController : ApiController
     {
         MobileServiceContext context = new MobileServiceContext();
 
-        // POST api/values/v1.0/
+        // POST api/identify/v1.0/add
         [HttpPost, Route("add")]
         public async Task<string> PostAddUser(MessageAttachments model)
         {
@@ -32,23 +27,49 @@ namespace FacialRecognition.Backend.Controllers
 
             foreach (var user in model.Users)
             {
+                CreatePersonResult person;
                 var bytes = user.GetByteArray();
-                var person = await FaceAnalyzer.faceServiceClient.CreatePersonAsync(xamGroup.PersonGroupId, user.UserEmail);
 
-                using (Stream imageFileStream = new MemoryStream(bytes))
-                    await FaceAnalyzer.faceServiceClient.AddPersonFaceAsync(xamGroup.PersonGroupId, person.PersonId, imageFileStream);
+                var detectedFaceResults = await FaceAnalyzer.DetectFaceAsync(bytes);
 
-                await FaceAnalyzer.faceServiceClient.TrainPersonGroupAsync(xamGroup.PersonGroupId);
+                if (detectedFaceResults.Success)
+                {
+                    var isUserInDatabase = context.IdentifiedUsers.Where(usr => usr.Id == detectedFaceResults.FaceId.ToString()).ToList().FirstOrDefault();
 
-                context.IdentifiedUsers.Add(new IdentifiedUser {Id = person.PersonId.ToString(), Email = user.UserEmail });
+                    if (isUserInDatabase == null)
+                        context.IdentifiedUsers.Add(new IdentifiedUser { Id = detectedFaceResults.FaceId.ToString(), Email = user.UserEmail });
+                    else
+                        return $"User {isUserInDatabase.Email} is already in the database";
+                }
+                else
+                {
+                    //Check if CognitiveServices XamarinGroup doesn't know of our user
+                    if (detectedFaceResults.Error == "Unable to Identify User")
+                    {
+                        using (Stream imageFileStream = new MemoryStream(bytes))
+                        {
+                            person = await FaceAnalyzer.faceServiceClient.CreatePersonAsync(xamGroup.PersonGroupId, user.UserEmail);
+
+                            await FaceAnalyzer.faceServiceClient.AddPersonFaceAsync(xamGroup.PersonGroupId, person.PersonId, imageFileStream);
+                            await FaceAnalyzer.faceServiceClient.TrainPersonGroupAsync(xamGroup.PersonGroupId);
+
+                            context.IdentifiedUsers.Add(new IdentifiedUser { Id = person.PersonId.ToString(), Email = user.UserEmail });
+                        }
+                    }
+                    //If it doesn't know about our user, then there was some error i.e. multiple faces, glasses 
+                    else
+                        return detectedFaceResults.Error;
+                }
 
                 counter++;
             }
 
+            await context.SaveChangesAsync();
+
             return $"Saved {counter} users out of {model.Users.Count} total users";
         }
 
-        // POST api/values/v1.0/
+        // POST api/identify/v1.0/check
         [HttpPost, Route("check")]
         public async Task<string> PostCheckUser(MessageAttachments model)
         {

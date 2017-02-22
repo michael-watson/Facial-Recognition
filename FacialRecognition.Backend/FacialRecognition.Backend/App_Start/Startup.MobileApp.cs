@@ -25,7 +25,9 @@ namespace FacialRecognition.Backend
                 .ApplyTo(config);
 
             // Use Entity Framework Code First to create database tables based on your DbContext
-            Database.SetInitializer(new MobileServiceInitializer());
+            //Database.SetInitializer(new MobileServiceInitializer());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<MobileServiceContext, Migrations.Configuration>());
+
 
             MobileAppSettingsDictionary settings = config.GetMobileAppSettingsProvider().GetMobileAppSettings();
 
@@ -46,14 +48,14 @@ namespace FacialRecognition.Backend
         }
     }
 
-    public class MobileServiceInitializer : CreateDatabaseIfNotExists<MobileServiceContext>
-    {
-        protected override void Seed(MobileServiceContext context)
-        {
-            context.IdentifiedUsers.Add(new IdentifiedUser { Id = "4c85546c-f484-4864-b022-1b784b5a012e", Email = "michael.watson@xamarin.com" });
+    //public class MobileServiceInitializer : CreateDatabaseIfNotExists<MobileServiceContext>
+    //{
+    //    protected override void Seed(MobileServiceContext context)
+    //    {
+    //        context.IdentifiedUsers.Add(new IdentifiedUser { Id = "4c85546c-f484-4864-b022-1b784b5a012e", Email = "michael.watson@xamarin.com" });
 
-            base.Seed(context);
-        }
-    }
+    //        base.Seed(context);
+    //    }
+    //}
 }
 

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingTop="24dp"
+    android:elevation="24dp"
+    android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/edit_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingRight="24dp"
+        android:paddingLeft="24dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/title"
+            android:text="Title"
+            android:textSize="28sp"
+            android:editable="false"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold" />
+        <ImageView
+            android:paddingTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/image" />
+        <TextView
+            android:id="@+id/subtext"
+            android:text="Subtext"
+            android:textSize="18sp"
+            android:editable="false"
+            android:gravity="center"
+            android:paddingTop="20dp"
+            android:paddingBottom="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:minWidth="25px"
+        android:height="52dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:gravity="end">
+        <Button
+            android:text="OK"
+            android:textSize="20sp"
+            android:textColor="#4285F4"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="@android:color/transparent"
+            android:height="36dp"
+            android:id="@+id/accept" />
+    </LinearLayout>
+</LinearLayout>

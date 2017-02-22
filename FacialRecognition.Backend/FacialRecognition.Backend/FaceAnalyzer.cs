@@ -17,7 +17,7 @@ namespace FacialRecognition.Backend
 
         public static async Task<AnalyzedFacialResults> DetectFaceAsync(byte[] imageBytes)
         {
-            var faces = await UploadAndDetectFaces(imageBytes);
+            var faces = await DetectFacesAsync(imageBytes);
 
             if (faces.Count() > 1)
                 return new AnalyzedFacialResults("Detected more than one face in picture");
@@ -61,7 +61,7 @@ namespace FacialRecognition.Backend
             }
         }
 
-        private static async Task<Face[]> UploadAndDetectFaces(byte[] imageBytes)
+        private static async Task<Face[]> DetectFacesAsync(byte[] imageBytes)
         {
             try
             {
